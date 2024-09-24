@@ -3,16 +3,51 @@ const drawingUtils = window;
 const mpFaceMesh = window;
 const config = { locateFile: (file) => {
   let filename = `node_modules/@mediapipe/face_mesh/${file}`;
-  console.log(filename)
+  //console.log(filename)
   return filename
 } };
 // Our input frames will come from here.
-const videoElement = document.getElementsByClassName('input_video')[0];
+const videoElement = document.getElementById('input_video');
 const canvasElement = document.getElementsByClassName('output_canvas')[0];
 const controlsElement = document.getElementsByClassName('control-panel')[0];
 const statsElement = document.getElementsByClassName('stats')[0];
 const eyeLvlElement = document.getElementsByClassName('eyeLvl')[0];
 const canvasCtx = canvasElement.getContext('2d');
+let hiResCanvas = null
+let capturing = 0
+let downloadLink = document.createElement("a");
+document.body.appendChild(downloadLink);
+downloadLink.style = "display: none";
+class HiddenCanvas{
+  constructor(width, height){
+    this.w = width;
+    this.h = height
+    this.canvas = new OffscreenCanvas(width, height)
+    this.ctx = this.canvas.getContext("2d")
+    this.ctx.scale(-1, 1)
+  }
+
+  captureImage(videoElm){
+    if(capturing){
+      return 
+    }
+    capturing = true
+    console.log("draw")
+    this.ctx.drawImage(videoElm, 0, 0, -this.w, this.h)
+    console.log("convert")
+    this.canvas.convertToBlob({type:"image/jpeg", quality:0.6}).then(blob=>{
+      console.log("download")
+      const url = URL.createObjectURL(blob);
+      downloadLink.href = url;
+      downloadLink.download = `selfie-r${Date.now()}.jpg`;
+      console.log("click")
+      downloadLink.click();
+      window.URL.revokeObjectURL(url);
+    })
+    capturing = false
+  }
+
+}
 /**
  * Solution options.
  */
@@ -28,10 +63,6 @@ const solutionOptions = {
 // call tick() each time the graph runs.
 const fpsControl = new controls.FPS();
 // Optimization: Turn off animated spinner after its hiding animation is done.
-const spinner = document.querySelector('.loading');
-spinner.ontransitionend = () => {
-    spinner.style.display = 'none';
-};
 const metrics = {
 
 }
@@ -42,16 +73,17 @@ const GOLDEN_RATIO = 0.618
 const GOLDEN_RATIO_2 = GOLDEN_RATIO * GOLDEN_RATIO
 const GOLDEN_RATIO_4 = GOLDEN_RATIO_2 * GOLDEN_RATIO_2
 function onResults(results) {
+    window.requestAnimationFrame(runModel)
     // Hide the spinner.
     document.body.classList.add('loaded');
     // Update the frame rate.
-    fpsControl.tick();
+  //fpsControl.tick();
     // Draw the overlays.
-    canvasCtx.save();
-    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-    canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-  let w = canvasElement.width
-  let h = canvasElement.height
+  //canvasCtx.save();
+  //canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+  // canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+    let w = canvasElement.width
+    let h = canvasElement.height
     if (results.multiFaceLandmarks) {
         for (const landmarks of results.multiFaceLandmarks) {
           /*
@@ -102,22 +134,26 @@ function onResults(results) {
           let lrOpacity = Math.abs(lrDiff) > 0.2?1: Math.abs(lrDiff)/0.2
           let lrIcon = lrDiff < 0? " ⬅️   "  : " ➡️  " 
           let mgLeft = lrDiff < 0? -150: 150
+          if(upDownOpacity < 0.025 && lrOpacity < 0.025){
+            captureImage()
+          }
           // Z rotate
           // should be 0
           statsElement.innerHTML= `
-          <div style="opacity:${upDownOpacity};
+          <div style="opacity1:${upDownOpacity};
           position:absolute; top:${mgTop}px">
           ${upDownIcon} ${diff.toFixed(3)} </div>
-          <div style="opacity:${lrOpacity};
+          <div style="opacity1:${lrOpacity};
           position:absolute; left:${mgLeft}px">
           ${lrIcon} ${lrDiff.toFixed(3)} </div>
-          <div style="opacity:${zPosOpacity}; width: 120px;
+          <div style="opacity1:${zPosOpacity}; width: 120px;
           left:-60px;
           position:absolute;">
           ${zPosIcon} ${ipdDiff.toFixed(3)} </div>
             `
           eyeLvlElement.style.opacity= yPosOpacity
           
+          return
           console.log({
             leftEyebrowDistance,
             rightEyebrowDistance,
@@ -129,6 +165,45 @@ function onResults(results) {
     }
     canvasCtx.restore();
 }
+let currentStream;
+function stopMediaTracks(stream) {
+  if(!currentStream){
+    return;
+  }
+  stream.getTracks().forEach(track => {
+    track.stop();
+  });
+}
+window.onChangeDevice = (e) => {
+  const facing = e.target.value
+  stopMediaTracks(currentStream)
+  if(facing=="user"){
+    videoElement.classList.add("selfie")
+  } else {
+    videoElement.classList.remove("selfie")
+  }
+  navigator.mediaDevices.getUserMedia({
+    audio: true,
+    video: {
+      height: {"ideal": 5000},
+      width: {"ideal": 5000},
+      facingMode:{"ideal": facing}
+    }
+  }).then((stream) => {
+    videoElement.srcObject = stream;
+  }).catch(e=>{
+    alert(e)
+  });
+}
+window.captureImage = () => {
+  document.getElementById("capture").disabled=true
+  document.getElementById("input_video").classList.add("capturing")
+  hiResCanvas.captureImage(videoElement)
+  setTimeout(() => {
+    document.getElementById("capture").disabled=false
+    document.getElementById("input_video").classList.remove("capturing")
+  }, 300)
+}
 const faceMesh = new mpFaceMesh.FaceMesh(config);
 faceMesh.setOptions(solutionOptions);
 faceMesh.onResults(onResults);
@@ -136,19 +211,52 @@ faceMesh.onResults(onResults);
 navigator.mediaDevices.getUserMedia({
   audio: true,
   video: {
-    facingMode: { exact: "user" }
+    height: {ideal: 5000},
+    width: {ideal: 5000},
+    aspectRatio: {min:0.5},
+    facingMode: { ideal: "user" }
   }
 }).then((stream) => {
-    player.srcObject = stream;
-  });
+    currentStream = stream
+    videoElement.srcObject = stream;
+});
+async function runModel(){
+  let size = {
+    height: videoElement.videoHeight,
+    width: videoElement.videoWidth
+  }
+  if (size.height==0){
+    window.requestAnimationFrame(runModel)
+    return
+  }
+  if(hiResCanvas==null){
+    hiResCanvas = new HiddenCanvas(size.width, size.height);
+  }
+  const aspect = size.height / size.width;
+  let width, height;
+  if (window.innerWidth > window.innerHeight) {
+    height = window.innerHeight;
+    width = height / aspect;
+  }
+  else {
+    width = window.innerWidth;
+    height = width * aspect;
+  }
+  canvasElement.width = width;
+  canvasElement.height = height;
+  await faceMesh.send({ image: videoElement});
+}
+runModel()
 // Present a control panel through which the user can manipulate the solution
 // options.
+/*
 new controls
     .ControlPanel(controlsElement, solutionOptions)
     .add([
     fpsControl,
     new controls.SourcePicker({
         onFrame: async (input, size) => {
+          return
             const aspect = size.height / size.width;
             let width, height;
             if (window.innerWidth > window.innerHeight) {
@@ -170,3 +278,4 @@ new controls
     videoElement.classList.toggle('selfie', options.selfieMode);
     faceMesh.setOptions(options);
 });
+*/

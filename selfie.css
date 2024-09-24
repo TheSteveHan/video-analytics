@@ -1,0 +1,23 @@
+#input_video{
+    transform: scale(-1, 1);
+    transition: 300ms;
+}
+#input_video.capturing{
+    opacity: 0.6;
+}
+.canvas-container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top:0px;
+}
+
+#capture{
+    position:fixed;
+    bottom:0px;
+    width:100svw;
+    padding:32px;
+}

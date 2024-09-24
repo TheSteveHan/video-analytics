@@ -3,6 +3,8 @@
 }
 
 body {
+    height: 100svh;
+    width: 100svw;
     bottom: 0;
     font-family: "Titillium Web", sans-serif;
     color: white;
@@ -16,7 +18,7 @@ body {
 }
 
 .container {
-    position: absolute;
+    position: relative;
     background-color: #596e73;
     width: 100%;
     max-height: 100%;
@@ -46,6 +48,7 @@ body {
     justify-content: center;
     align-items: center;
     position:relative;
+    border:1px solid black;
 }
 
 .output_canvas {

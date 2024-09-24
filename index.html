@@ -11,39 +11,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Demo 13</title>
     <link rel="icon" href="favicon.ico">
-  <link rel="stylesheet" type="text/css" href="control_utils.css" crossorigin="anonymous">
+      <link rel="stylesheet" type="text/css" href="control_utils.css" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="face_mesh.css" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="selfie.css" crossorigin="anonymous">
     <script src="camera_utils.js" crossorigin="anonymous"></script>
     <script src="control_utils.js" crossorigin="anonymous"></script>
     <script src="drawing_utils.js" crossorigin="anonymous"></script>
     <script src="face_mesh_lib.js" crossorigin="anonymous"></script>
 </head>
 <body>
-
-    <div class="container">
-        <video class="input_video"></video>
+    <div class="container" onclick="captureImage()">
+        <video class="selfie" autoplay muted id="input_video" style="width:100vw;max-height:100vh;object-fit:contain;" 
+            ></video>
         <div class="canvas-container">
             <canvas class="output_canvas" width="100%" height="100%">
             </canvas>
             <div class="stats"></div>
             <div class="eyeLvl" style="width: 100vw; 
-                left:0px; top:38.2%; right:0px; ; margin-top:-8px; position:absolute;">
+                        left:0px; top:38.2%; right:0px; ; margin-top:-8px; position:absolute;">
                 <div style="position:absolute;">
                     Eye Level
-            </div>
-            <hr/>
-            </div>
-        </div>
-        <div class="loading">
-            <div class="spinner"></div>
-            <div class="message">
-                Loading
+                </div>
+                <hr/>
             </div>
         </div>
     </div>
-    <div class="control-panel">
+    <div style="background-color: black; flex:1">
+        <select id="camera-select" onchange="onChangeDevice(event)">
+            <option value="user">Front</option>
+            <option value="environment">Back</option>
+        </select>
     </div>
-    
+    <button id="capture" onclick="captureImage()">Take Picture</button>
 </body>
 <script type="module" src="selfie.js"></script>
 </html>
