@@ -212,8 +212,8 @@ faceMesh.onResults(onResults);
 navigator.mediaDevices.getUserMedia({
   audio: false,
   video: {
-    height: {ideal: 5000},
-    width: {ideal: 5000},
+    height: {"ideal": 4000, max: 4000},
+    width: {"ideal": 4000, max: 4000},
     facingMode: { ideal: "user" }
   }
 }).then((stream) => {
