@@ -185,7 +185,7 @@ window.onChangeDevice = (e) => {
   navigator.mediaDevices.getUserMedia({
     audio: false,
     video: {
-      height: {"ideal": 3840, max: 3840},
+      //height: {"ideal": 3840, max: 3840},
       width: {"ideal": 2160, max: 2160},
       facingMode:{"ideal": facing}
     }
@@ -212,7 +212,7 @@ faceMesh.onResults(onResults);
 navigator.mediaDevices.getUserMedia({
   audio: false,
   video: {
-    height: {"ideal": 3840, max: 3840},
+    //height: {"ideal": 3840, max: 3840},
     width: {"ideal": 2160, max: 2160},
     facingMode: { ideal: "user" }
   }
