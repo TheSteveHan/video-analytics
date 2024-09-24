@@ -190,6 +190,7 @@ window.onChangeDevice = (e) => {
       facingMode:{"ideal": facing}
     }
   }).then((stream) => {
+    currentStream=stream
     videoElement.srcObject = stream;
   }).catch(e=>{
     alert(e)
