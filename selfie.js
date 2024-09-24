@@ -134,7 +134,7 @@ function onResults(results) {
           let lrOpacity = Math.abs(lrDiff) > 0.2?1: Math.abs(lrDiff)/0.2
           let lrIcon = lrDiff < 0? " ⬅️   "  : " ➡️  " 
           let mgLeft = lrDiff < 0? -150: 150
-          if(upDownOpacity < 0.025 && lrOpacity < 0.025){
+          if(upDownOpacity < 0.03 && lrOpacity < 0.03){
             captureImage()
           }
           // Z rotate
@@ -185,8 +185,8 @@ window.onChangeDevice = (e) => {
   navigator.mediaDevices.getUserMedia({
     audio: false,
     video: {
-      //height: {"ideal": 3840, max: 3840},
-      width: {"ideal": 2160, max: 2160},
+      width: {"ideal": 4000, max: 4000},
+      aspectRatio: {"ideal": 1.777},
       facingMode:{"ideal": facing}
     }
   }).then((stream) => {
@@ -197,11 +197,9 @@ window.onChangeDevice = (e) => {
   });
 }
 window.captureImage = () => {
-  document.getElementById("capture").disabled=true
   document.getElementById("input_video").classList.add("capturing")
   hiResCanvas.captureImage(videoElement)
   setTimeout(() => {
-    document.getElementById("capture").disabled=false
     document.getElementById("input_video").classList.remove("capturing")
   }, 300)
 }
@@ -212,8 +210,8 @@ faceMesh.onResults(onResults);
 navigator.mediaDevices.getUserMedia({
   audio: false,
   video: {
-    //height: {"ideal": 3840, max: 3840},
-    width: {"ideal": 2160, max: 2160},
+    width: {"ideal": 4000, max: 4000},
+    aspectRatio: {"ideal": 1.777},
     facingMode: { ideal: "user" }
   }
 }).then((stream) => {
