@@ -183,7 +183,7 @@ window.onChangeDevice = (e) => {
     videoElement.classList.remove("selfie")
   }
   navigator.mediaDevices.getUserMedia({
-    audio: true,
+    audio: false,
     video: {
       height: {"ideal": 5000},
       width: {"ideal": 5000},
@@ -209,11 +209,10 @@ faceMesh.setOptions(solutionOptions);
 faceMesh.onResults(onResults);
 // Attach the video stream to the video element and autoplay.
 navigator.mediaDevices.getUserMedia({
-  audio: true,
+  audio: false,
   video: {
     height: {ideal: 5000},
     width: {ideal: 5000},
-    aspectRatio: {min:0.5},
     facingMode: { ideal: "user" }
   }
 }).then((stream) => {
