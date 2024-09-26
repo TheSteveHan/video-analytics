@@ -114,7 +114,7 @@ function onResults(results) {
           let zPosOpacity = Math.abs(ipdDiff) > 0.1?1: Math.abs(ipdDiff)/0.1
           // X Rotate 
           // chin -> mouth vs chin -> eye ratio
-          let chinTopLip = landmarks[152].y - landmarks[13].y
+          let chinTopLip = landmarks[152].y - landmarks[12].y
           let eyeLvl = (landmarks[133].y + landmarks[463].y)/2
           let chinEye = landmarks[152].y - eyeLvl
           let ideaEyeLip = 0.381
